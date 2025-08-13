@@ -1,0 +1,15 @@
+[project]
+name = "purchase-tracking-app"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "django==4.2.7",
+    "djangorestframework",
+    "mongoengine",
+    "Pillow",
+    "python-dotenv",
+    "django-cors-headersv",
+    "pytest-django",
+]
