@@ -1,48 +1,58 @@
 import os
-import google.generativeai as genai
-from google.generativeai import types
-from pydantic import BaseModel
+import json
+import io
+from typing import Any, Dict, List
 
+from django.core.files.uploadedfile import UploadedFile
+from PIL import Image
 from dotenv import load_dotenv
+import google.genai as genai
+from pydantic import BaseModel, Field
+
 load_dotenv()
 
+class ItemData(BaseModel):
+    name: str
+    quantity: int
+    amount: float
+
 class ReceiptData(BaseModel):
-    fidelity_card_number: str = ''
-    store_name: str = ''
-    transaction_date: str = None
-    total_amount: float = 0.0
-    items: list[dict] = []
-    raw_ocr_text: str = ''
-    processed_by_user: str = ''
-    flagged_for_review: bool = False
-    flag_reasons: list = []
-    reviewed: bool = False
+    transaction_id: str = Field(description="The unique identifier for the transaction, if available. Can be an order number or receipt number.")
+    total_amount: float = Field(default=0.0, description="The total amount of the transaction.")
+    items: List[ItemData] = Field(default_factory=list, description="A list of items in the receipt and their corresponding prices.")
 
 
 api_key = os.getenv('GOOGLE_API_KEY')
-genai.configure(api_key=api_key)
-
-client = genai.Client()
+client = genai.Client(api_key=api_key)
 
 
+def postprocess_step(extracted_data: str, **kwargs) -> Dict:
+    # Accept JSON string or dict, normalize to dict
+    
+    data = json.loads(extracted_data)
 
-def process_receipt_ocr(image_data )-> list[ReceiptData]:
+    # Add/update fields from kwargs (with simple validation)
+    for k,v in kwargs.items():
+        data[k]= v
+
+    # Return as JSON string (pretty optional)
+    return data
+
+
+
+def process_receipt_ocr(image_data: UploadedFile)-> str:
     # image_data: Django UploadedFile object
-    image_bytes = image_data.read()
-    prompt = (
-        "Extract the following fields from this receipt image: "
-        "fidelity_card_number, store_name, transaction_date, total_amount, items (list of dictionaries where each item has 3 keys: name, amount, quantity). "
-    )
+    data = image_data.read()
+    image = Image.open(io.BytesIO(data),mode="r")
 
     response = client.models.generate_content(
-        model="gemini-2.5-flash",
-        contents=[
-            {"role": "user", "parts": [prompt, {"mime_type": "image/jpeg", "data": image_bytes}]}
-        ],
+        model="gemini-2.0-flash",
+        contents=["extract the relevant information from this receipt", image],
         config={
-            "response_mime_type": "application/json",
-            "response_schema": [ReceiptData],
-        },
-    )
+                "response_mime_type": "application/json",
+                "response_schema": ReceiptData,
+            },
+        )
     # Parse and return the structured result
-    return response.parsed
+    #  
+    return response.text

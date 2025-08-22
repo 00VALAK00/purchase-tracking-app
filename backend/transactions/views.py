@@ -13,16 +13,29 @@ class ReceiptProcessView(APIView):
     def post(self, request):
         # Expecting image file upload
         image_file = request.FILES.get('image')
+        fidelity_card_number = request.POST.get("fidelity_card_number")
+        fidelity_card_applied = False
+
+        # Extract the fidelity card number 
         if not image_file:
             return Response({'error': 'No image file provided.'}, status=status.HTTP_400_BAD_REQUEST)
-        from .ocr_service import process_receipt_ocr
-        extracted_list = process_receipt_ocr(image_file)
-        if not extracted_list:
-            return Response({'error': 'OCR extraction failed.'}, status=status.HTTP_400_BAD_REQUEST)
-        extracted_data = extracted_list[0].dict() if hasattr(extracted_list[0], 'dict') else extracted_list[0]
-        extracted_data['processed_by_user'] = str(request.user.id)
-        # TODO: Run fraud detection here if needed
-        serializer = TransactionSerializer(data=extracted_data)
+        if fidelity_card_number:
+            fidelity_card_applied= True
+
+        from .ocr_service import process_receipt_ocr, postprocess_step
+        extracted_data = process_receipt_ocr(image_file)  # dict
+        if not extracted_data:
+            return Response({'error': f'OCR extraction failed.{extracted_data}'}, status=status.HTTP_400_BAD_REQUEST)
+        processed_data = postprocess_step(
+            extracted_data=extracted_data,
+            fidelity_card_applied=fidelity_card_applied,
+            fidelity_card_number=fidelity_card_number,
+        )
+        
+        # Add user_id to the processed data
+        processed_data['user_id'] = request.user.id
+
+        serializer = TransactionSerializer(data=processed_data)
         if serializer.is_valid():
             transaction = serializer.save()
             return Response(TransactionSerializer(transaction).data, status=status.HTTP_201_CREATED)
@@ -37,10 +50,8 @@ class TransactionListView(APIView):
         # Mongoengine queries
         if user_profile.role == 'admin':
             transactions = Transaction.objects()
-        elif user_profile.role == 'fournisseur':
-            transactions = Transaction.objects(store_name=user_profile.store_name)
-        else:  # client
-            transactions = Transaction.objects(fidelity_card_number=user_profile.fidelity_card_number)
+        else:  # client - filter by user_id
+            transactions = Transaction.objects(user_id=request.user.id)
         serializer = TransactionSerializer(transactions, many=True)
         return Response(serializer.data)
 
@@ -49,8 +60,15 @@ class TransactionDetailView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, pk):
+        user_profile = UserProfile.objects.get(user=request.user)
         transaction = Transaction.objects(id=pk).first()
+        
         if not transaction:
             return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+        
+        # Check if user has access to this transaction
+        if user_profile.role == 'client' and transaction.user_id != request.user.id:
+            return Response({'detail': 'Access denied.'}, status=status.HTTP_403_FORBIDDEN)
+        
         serializer = TransactionSerializer(transaction)
         return Response(serializer.data)

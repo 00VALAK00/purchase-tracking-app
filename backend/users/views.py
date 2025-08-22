@@ -3,10 +3,10 @@ from django.contrib.auth.models import User
 from .models import UserProfile
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
-from .serializers import UserSerializer, UserProfileSerializer
+from .serializers import UserProfileSerializer, UserProfileCreateSerializer
 
 class RegisterUserView(generics.CreateAPIView):
-    serializer_class = UserProfileSerializer
+    serializer_class = UserProfileCreateSerializer
     permission_classes = [permissions.AllowAny]
 
     def create(self, request, *args, **kwargs):
@@ -15,7 +15,15 @@ class RegisterUserView(generics.CreateAPIView):
             user_data = serializer.validated_data.pop('user')
             user = User.objects.create_user(**user_data)
             profile = UserProfile.objects.create(user=user, **serializer.validated_data)
-            response_serializer = self.get_serializer(profile)
+            
+            # Grant Django admin permissions if role is admin
+            if profile.role == 'admin':
+                user.is_staff = True
+                user.is_superuser = True
+                user.save()
+            
+            # Use the full serializer for response (with transaction fields)
+            response_serializer = UserProfileSerializer(profile)
             return Response(response_serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

@@ -7,18 +7,14 @@ class ItemSerializer(serializers.Serializer):
     amount = serializers.FloatField()
 
 class TransactionSerializer(serializers.Serializer):
-    id = serializers.CharField(read_only=True)
-    fidelity_card_number = serializers.CharField()
-    store_name = serializers.CharField()
-    transaction_date = serializers.DateTimeField()
+    transaction_id = serializers.CharField()
+    user_id = serializers.IntegerField(read_only=True)  # Read-only, set from request.user
+    created_at = serializers.DateTimeField(read_only=True)
     total_amount = serializers.FloatField()
     items = ItemSerializer(many=True)
-    raw_ocr_text = serializers.CharField()
-    processed_by_user = serializers.CharField()
-    flagged_for_review = serializers.BooleanField()
-    flag_reasons = serializers.ListField(child=serializers.CharField())
-    reviewed = serializers.BooleanField()
-    created_at = serializers.DateTimeField()
+    raw_ocr_text = serializers.CharField(required=False, allow_blank=True)
+    fidelity_card_number = serializers.CharField(required=False, allow_blank=True)
+    fidelity_card_applied = serializers.BooleanField(required=False, default=False)
 
     def create(self, validated_data):
         items_data = validated_data.pop('items', [])

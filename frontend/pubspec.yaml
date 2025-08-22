@@ -1,0 +1,39 @@
+name: purchase_tracking_app
+description: A simple mobile app for tracking purchases and receipts using OCR.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.2
+  http: ^1.5.0
+  image_picker: ^1.0.4
+  shared_preferences: ^2.2.2
+  provider: ^6.1.1
+  flutter_secure_storage: ^9.0.0
+  path_provider: ^2.1.1
+  permission_handler: ^12.0.1
+
+
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  
+  assets:
+    - assets/images/
+  
+  fonts:
+    - family: Roboto
+      fonts:
+        - asset: assets/fonts/Roboto_Condensed-BlackItalic.ttf
+        - asset: assets/fonts/Roboto_Condensed-BoldItalic.ttf
+          weight: 700

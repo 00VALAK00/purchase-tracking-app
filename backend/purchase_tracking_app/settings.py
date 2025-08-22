@@ -19,15 +19,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-o39+_auk!pw@=y1sv^4pf7=m*vzi9=3^aqwqsn*8bh=$-n@9y6'
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '10.0.2.2']
 
-
+SECRET_KEY = "awdwadwadasdwdasf34"
 # Application definition
 
 INSTALLED_APPS = [
@@ -79,13 +78,18 @@ WSGI_APPLICATION = 'purchase_tracking_app.wsgi.application'
 
 import os
 
+from dotenv import load_dotenv
+
+# Load env from backend/.env explicitly
+load_dotenv(BASE_DIR / '.env')
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': os.getenv('MYSQL_DATABASE', 'purchase_tracking'),
         'USER': os.getenv('MYSQL_USER', 'user'),
         'PASSWORD': os.getenv('MYSQL_PASSWORD', 'password'),
-        'HOST': os.getenv('MYSQL_HOST', 'db'),
+        'HOST': os.getenv('MYSQL_HOST', 'localhost'),
         'PORT': os.getenv('MYSQL_PORT', '3306'),
     }
 }
@@ -140,17 +144,19 @@ REST_FRAMEWORK = {
 
 # MongoDB connection using mongoengine
 import mongoengine
-import os
-from dotenv import load_dotenv
 
-load_dotenv()
+
 MONGODB_USERNAME = os.getenv('MONGODB_USERNAME')
 MONGODB_PASSWORD = os.getenv('MONGODB_PASSWORD')
 MONGODB_DB = os.getenv('MONGODB_DB')
 
-MONGODB_URI = f"mongodb+srv://{MONGODB_USERNAME}:{MONGODB_PASSWORD}@{MONGODB_DB}.qbcui8f.mongodb.net/{MONGODB_DB}?retryWrites=true&w=majority"
-
-mongoengine.connect(
-    db=MONGODB_DB,
-    host=MONGODB_URI
-)
+if all([MONGODB_USERNAME, MONGODB_PASSWORD, MONGODB_DB]):
+    MONGODB_URI = (
+        f"mongodb+srv://{MONGODB_USERNAME}:{MONGODB_PASSWORD}"
+        f"@{MONGODB_DB}.qbcui8f.mongodb.net/{MONGODB_DB}?retryWrites=true&w=majority&appName={MONGODB_DB}"
+    )
+    try:
+        mongoengine.connect(db=MONGODB_DB, host=MONGODB_URI)
+    except Exception:
+        # Avoid raising during settings import; logs can be added as needed
+        pass

@@ -3,6 +3,6 @@ from .views import ReceiptProcessView, TransactionListView, TransactionDetailVie
 
 urlpatterns = [
     path('receipts/process/', ReceiptProcessView.as_view(), name='receipt-process'),
-    path('transactions/', TransactionListView.as_view(), name='transaction-list'),
-    path('transactions/<str:pk>/', TransactionDetailView.as_view(), name='transaction-detail'),
+    # path('transactions/', TransactionListView.as_view(), name='transaction-list'),
+    # path('transactions/<str:pk>/', TransactionDetailView.as_view(), name='transaction-detail'),
 ] 

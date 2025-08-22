@@ -6,30 +6,25 @@ from users.models import UserProfile
 from users.serializers import UserSerializer, UserProfileSerializer
 from rest_framework.views import APIView
 
+# Custom permission class for admin role
+class IsAdminRole(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if not request.user.is_authenticated:
+            return False
+        try:
+            profile = UserProfile.objects.get(user=request.user)
+            return profile.role == 'admin'
+        except UserProfile.DoesNotExist:
+            return False
+
 # Create your views here.
 
 class AdminUserListCreateView(generics.ListCreateAPIView):
     queryset = UserProfile.objects.select_related('user').all()
     serializer_class = UserProfileSerializer
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = [IsAdminRole]
 
 class AdminUserDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = UserProfile.objects.select_related('user').all()
     serializer_class = UserProfileSerializer
-    permission_classes = [permissions.IsAdminUser]
-
-class AdminSystemStatsView(APIView):
-    permission_classes = [permissions.IsAdminUser]
-
-    def get(self, request):
-        # Placeholder values; replace with real queries when transactions are implemented
-        total_transactions = 0
-        flagged_transactions = 0
-        active_users = UserProfile.objects.filter(is_active=True).count()
-        processing_accuracy = 1.0
-        return Response({
-            "total_transactions": total_transactions,
-            "flagged_transactions": flagged_transactions,
-            "active_users": active_users,
-            "processing_accuracy": processing_accuracy
-        })
+    permission_classes = [IsAdminRole]

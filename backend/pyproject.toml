@@ -7,9 +7,28 @@ requires-python = ">=3.12"
 dependencies = [
     "django==4.2.7",
     "djangorestframework",
+    "djangorestframework-simplejwt",
     "mongoengine",
     "Pillow",
     "python-dotenv",
-    "django-cors-headersv",
+    "django-cors-headers",
     "pytest-django",
+    "google-generativeai",
+    "mysql-connector-python",
+    "mysqlclient",
+    "pymongo",
+]
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = [
+  "admin_api*",
+  "api*",
+  "transactions*",
+  "users*",
+  "purchase_tracking_app*",
 ]
