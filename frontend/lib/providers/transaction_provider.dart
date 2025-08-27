@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/transaction.dart';
 import '../services/api_service.dart';
+import 'dart:io';
 
 class TransactionProvider extends ChangeNotifier {
   List<Transaction> _transactions = [];
@@ -40,7 +41,7 @@ class TransactionProvider extends ChangeNotifier {
   // Process receipt (add new transaction)
   Future<bool> processReceipt({
     required String token,
-    required String imagePath,
+    required File imageFile,
     String? fidelityCardNumber,
   }) async {
     _isLoading = true;
@@ -50,7 +51,7 @@ class TransactionProvider extends ChangeNotifier {
     try {
       final newTransaction = await ApiService.processReceipt(
         token: token,
-        imageFile: imagePath as dynamic, // This will be fixed in the service
+        imageFile: imageFile, // This will be fixed in the service
         fidelityCardNumber: fidelityCardNumber,
       );
 

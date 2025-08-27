@@ -23,7 +23,7 @@ class ReceiptProcessView(APIView):
             fidelity_card_applied= True
 
         from .ocr_service import process_receipt_ocr, postprocess_step
-        extracted_data = process_receipt_ocr(image_file)  # dict
+        extracted_data = process_receipt_ocr(image_file)  
         if not extracted_data:
             return Response({'error': f'OCR extraction failed.{extracted_data}'}, status=status.HTTP_400_BAD_REQUEST)
         processed_data = postprocess_step(
@@ -34,6 +34,8 @@ class ReceiptProcessView(APIView):
         
         # Add user_id to the processed data
         processed_data['user_id'] = request.user.id
+        if not processed_data.get('user_id'):
+            return Response({'error': 'User ID is required.'}, status=status.HTTP_400_BAD_REQUEST)
 
         serializer = TransactionSerializer(data=processed_data)
         if serializer.is_valid():

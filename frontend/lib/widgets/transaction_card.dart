@@ -29,12 +29,12 @@ class TransactionCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    'Transaction #${transaction.transactionId.substring(0, 8)}',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
+                           'Transaction #${transaction.transactionId}',
+                           style: const TextStyle(
+                             fontWeight: FontWeight.bold,
+                             fontSize: 16,
+                           ),
+                         ),
                 ),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),

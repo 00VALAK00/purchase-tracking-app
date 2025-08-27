@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:http/http.dart' as http;
 import '../models/user.dart';
 import '../models/transaction.dart';
@@ -121,8 +122,10 @@ class ApiService {
       request.headers['Authorization'] = 'Bearer $token';
       
       request.files.add(
-        await http.MultipartFile.fromPath('image', imageFile.path),
-      );
+         await http.MultipartFile.fromPath(
+                  'image',
+                  imageFile.path,
+      ),);
 
       if (fidelityCardNumber != null && fidelityCardNumber.isNotEmpty) {
         request.fields['fidelity_card_number'] = fidelityCardNumber;

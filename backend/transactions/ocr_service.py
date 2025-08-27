@@ -2,6 +2,7 @@ import os
 import json
 import io
 from typing import Any, Dict, List
+import uuid
 
 from django.core.files.uploadedfile import UploadedFile
 from PIL import Image
@@ -35,6 +36,10 @@ def postprocess_step(extracted_data: str, **kwargs) -> Dict:
     for k,v in kwargs.items():
         data[k]= v
 
+    # case the transaction does not have an unique identifier
+    if "N/A" in data["transaction_id"]:
+        data["transaction_id"] = uuid.uuid4().hex
+
     # Return as JSON string (pretty optional)
     return data
 
@@ -47,7 +52,7 @@ def process_receipt_ocr(image_data: UploadedFile)-> str:
 
     response = client.models.generate_content(
         model="gemini-2.0-flash",
-        contents=["extract the relevant information from this receipt", image],
+        contents=["extract the relevant information from this receipt. If a field is not found fill it with N/A", image],
         config={
                 "response_mime_type": "application/json",
                 "response_schema": ReceiptData,

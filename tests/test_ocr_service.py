@@ -3,8 +3,7 @@ import requests
 
 BASE = "http://localhost:8000"
 URL = f"{BASE}/api/receipts/process/"
-TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU1NjI5MjYzLCJpYXQiOjE3NTU2Mjg5NjMsImp0aSI6ImMxMTM1ZjYyMmQzNDRiYTY4ZjM5MzVhNGExMDdjMDVlIiwidXNlcl9pZCI6IjEifQ.a8JTQdRSBjLTC4D9v_JgB6pyTvtxRp-QpLduLBlBGZo"
-
+TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU1ODQzMDE5LCJpYXQiOjE3NTU4NDI3MTksImp0aSI6IjNhY2M5MjUyZDZiODRjN2JhMTMyOTJjNmVjMDdkZDk0IiwidXNlcl9pZCI6IjcifQ.WlS1-158_O4hNVYc_APsZowQ9G81OMAmr7xjwOX4pO8"
 headers = {"Authorization": f"Bearer {TOKEN}"}
 files = {"image": ("receipt-template.jpg", open("tests/data/receipt-template.png", "rb"), "image/png")}
 data = {"fidelity_card_number": "FC-123456"}

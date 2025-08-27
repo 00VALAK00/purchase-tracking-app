@@ -1,10 +1,6 @@
-# Python-generated files
-__pycache__/
-*.py[oc]
-build/
-dist/
-wheels/
-*.egg-info
+distinguish the ocred transaction id and random id 
 
-# Virtual environments
-.venv
+
+OR
+
+incase a transaction has a null value or n/a compute a random id generated using eg uid

@@ -8,7 +8,7 @@ class ItemSerializer(serializers.Serializer):
 
 class TransactionSerializer(serializers.Serializer):
     transaction_id = serializers.CharField()
-    user_id = serializers.IntegerField(read_only=True)  # Read-only, set from request.user
+    user_id = serializers.IntegerField()  # Read-only, set from request.user
     created_at = serializers.DateTimeField(read_only=True)
     total_amount = serializers.FloatField()
     items = ItemSerializer(many=True)

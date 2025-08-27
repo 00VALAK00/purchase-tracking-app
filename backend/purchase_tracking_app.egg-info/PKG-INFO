@@ -1,0 +1,18 @@
+Metadata-Version: 2.4
+Name: purchase-tracking-app
+Version: 0.1.0
+Summary: Add your description here
+Requires-Python: >=3.12
+Description-Content-Type: text/markdown
+Requires-Dist: django==4.2.7
+Requires-Dist: djangorestframework
+Requires-Dist: djangorestframework-simplejwt
+Requires-Dist: mongoengine
+Requires-Dist: Pillow
+Requires-Dist: python-dotenv
+Requires-Dist: django-cors-headers
+Requires-Dist: pytest-django
+Requires-Dist: google-generativeai
+Requires-Dist: mysql-connector-python
+Requires-Dist: mysqlclient
+Requires-Dist: pymongo
